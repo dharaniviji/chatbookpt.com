@@ -1,0 +1,802 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Snow White — A Chat with Our Beloved Dog (Audio Edition)</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #faf7f2;
+    --chat-bg: #fff;
+    --snow-bubble: #fff8f0;
+    --snow-border: #f0e0cc;
+    --user-bubble: #e8ddd0;
+    --accent: #c9956b;
+    --accent-hover: #b07d55;
+    --text: #4a3728;
+    --text-light: #8a7565;
+    --shadow: rgba(120, 80, 40, 0.08);
+  }
+
+  body {
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100dvh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  /* ---- Header ---- */
+  .header {
+    text-align: center;
+    padding: 24px 16px 12px;
+    max-width: 600px;
+    width: 100%;
+    position: relative;
+  }
+  .header .avatar {
+    width: 72px; height: 72px;
+    border-radius: 50%;
+    background: var(--snow-bubble);
+    border: 3px solid var(--snow-border);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 36px;
+    margin: 0 auto 8px;
+  }
+  .header h1 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--text);
+  }
+  .header p {
+    font-size: 0.8rem;
+    color: var(--text-light);
+    margin-top: 2px;
+  }
+
+  /* ---- Mute button ---- */
+  .mute-btn {
+    position: absolute;
+    top: 24px;
+    right: 16px;
+    background: var(--snow-bubble);
+    border: 1px solid var(--snow-border);
+    border-radius: 50%;
+    width: 38px; height: 38px;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer;
+    font-size: 18px;
+    transition: background 0.2s, transform 0.15s;
+    box-shadow: 0 1px 3px var(--shadow);
+  }
+  .mute-btn:hover {
+    background: var(--user-bubble);
+    transform: scale(1.08);
+  }
+  .mute-btn:active { transform: scale(0.95); }
+
+  /* ---- Chat container ---- */
+  .chat-wrap {
+    flex: 1;
+    width: 100%;
+    max-width: 600px;
+    display: flex;
+    flex-direction: column;
+    padding: 0 12px 12px;
+  }
+  .messages {
+    flex: 1;
+    overflow-y: auto;
+    padding: 8px 0 16px;
+    scroll-behavior: smooth;
+  }
+
+  /* ---- Bubbles ---- */
+  .msg {
+    display: flex;
+    margin-bottom: 12px;
+    opacity: 0;
+    transform: translateY(10px);
+    animation: fadeUp 0.35s ease forwards;
+  }
+  @keyframes fadeUp {
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .msg.snow { justify-content: flex-start; }
+  .msg.user { justify-content: flex-end; }
+
+  .bubble {
+    max-width: 82%;
+    padding: 12px 16px;
+    border-radius: 18px;
+    line-height: 1.55;
+    font-size: 0.95rem;
+    position: relative;
+    box-shadow: 0 1px 3px var(--shadow);
+  }
+  .msg.snow .bubble {
+    background: var(--snow-bubble);
+    border: 1px solid var(--snow-border);
+    border-bottom-left-radius: 4px;
+  }
+  .msg.user .bubble {
+    background: var(--user-bubble);
+    border-bottom-right-radius: 4px;
+    color: var(--text);
+  }
+
+  /* ---- Typing indicator ---- */
+  .typing-indicator {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 0;
+    margin-bottom: 8px;
+    opacity: 0;
+    animation: fadeUp 0.3s ease forwards;
+  }
+  .typing-indicator .label {
+    font-size: 0.8rem;
+    color: var(--text-light);
+    font-style: italic;
+  }
+  .dots { display: flex; gap: 4px; }
+  .dots span {
+    width: 6px; height: 6px;
+    background: var(--accent);
+    border-radius: 50%;
+    animation: bounce 1.2s infinite;
+  }
+  .dots span:nth-child(2) { animation-delay: 0.15s; }
+  .dots span:nth-child(3) { animation-delay: 0.3s; }
+  @keyframes bounce {
+    0%, 60%, 100% { transform: translateY(0); opacity: 0.4; }
+    30% { transform: translateY(-6px); opacity: 1; }
+  }
+
+  /* ---- Quick-reply buttons ---- */
+  .choices {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 4px 0 12px;
+    justify-content: flex-end;
+    opacity: 0;
+    animation: fadeUp 0.35s ease forwards;
+  }
+  .choices button {
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    padding: 10px 18px;
+    border-radius: 20px;
+    font-size: 0.88rem;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.15s;
+    line-height: 1.3;
+  }
+  .choices button:hover {
+    background: var(--accent-hover);
+    transform: scale(1.04);
+  }
+  .choices button:active { transform: scale(0.97); }
+
+  /* ---- Scrollbar ---- */
+  .messages::-webkit-scrollbar { width: 5px; }
+  .messages::-webkit-scrollbar-thumb {
+    background: var(--snow-border);
+    border-radius: 4px;
+  }
+
+  /* ---- Responsive ---- */
+  @media (max-width: 480px) {
+    .header { padding: 16px 12px 8px; }
+    .header .avatar { width: 56px; height: 56px; font-size: 28px; }
+    .header h1 { font-size: 1.1rem; }
+    .bubble { max-width: 88%; font-size: 0.9rem; padding: 10px 14px; }
+    .choices button { padding: 9px 14px; font-size: 0.82rem; }
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="avatar">🐾</div>
+  <h1>Snow White</h1>
+  <p>The dog who chose her family</p>
+  <button class="mute-btn" id="muteBtn" title="Toggle audio">🔊</button>
+</div>
+
+<div class="chat-wrap">
+  <div class="messages" id="messages"></div>
+</div>
+
+<script>
+// ─── Conversation Tree ───
+const tree = {
+  start: {
+    messages: [
+      "Woof! Hello there! *wags tail* 🐾",
+      "My name is Snow White. I'm a scruffy little white dog with soft brown eyes — at least that's what my family always said.",
+      "I showed up on their porch one evening in San Jose, and I never left. Twelve wonderful years together.",
+      "What would you like to hear about?"
+    ],
+    choices: [
+      { text: "How did you find your family?", next: "arrival" },
+      { text: "Tell me about your puppies", next: "puppies" },
+      { text: "Who were your favorite neighbors?", next: "neighbors" },
+      { text: "Did you play with the kids?", next: "kids" },
+      { text: "Do you miss them too?", next: "farewell" }
+    ]
+  },
+
+  arrival: {
+    messages: [
+      "Ah, the night everything changed... *settles down comfortably*",
+      "I was a stray — no collar, no tag, no one looking for me. I was maybe two years old, scruffy and trembling. I don't know what drew me to that particular porch in San Jose, but something told me to sit down and wait.",
+      "They set out a bowl of water first. Then some rice. I ate slowly — I wanted to be polite, you know? My tail gave a little wag between bites. I couldn't help it.",
+      "The kids pressed their faces against the screen door, whispering: 'Can we keep her? Please?' 🐶",
+      "They put up flyers. Asked the neighbors. No one claimed me. Days turned into weeks. I slept on the porch at first, then by the front door, then — inevitably — at the foot of their bed.",
+      "By the time a month had passed, the question wasn't 'can we keep her' anymore. It was 'how did we ever live without her?'"
+    ],
+    choices: [
+      { text: "What was the porch like?", next: "porch" },
+      { text: "Did they name you right away?", next: "naming" },
+      { text: "Ask about something else", next: "menu" }
+    ]
+  },
+
+  porch: {
+    messages: [
+      "Oh, that porch... *rests chin on paws*",
+      "It was wooden, a little creaky, with a railing I liked to thump my tail against whenever someone came home. There was a worn welcome mat that smelled like everyone who'd ever stepped on it — I loved that.",
+      "That first night I curled up right next to the door. I could hear them inside, talking about me. The littlest one kept saying 'the white doggy is sleeping outside!' in this worried voice.",
+      "The next morning, the dad came out with a blanket and more food. He sat with me for a while, just quiet. That's when I knew — these were my people. 🐾",
+      "Eventually they couldn't stand me being outside anymore. And honestly? I couldn't stand it either. The foot of their bed was the coziest spot I ever found."
+    ],
+    choices: [
+      { text: "Did they name you right away?", next: "naming" },
+      { text: "Tell me about the puppies", next: "puppies" },
+      { text: "Ask about something else", next: "menu" }
+    ]
+  },
+
+  naming: {
+    messages: [
+      "*ears perk up* My name! Yes!",
+      "At first they called me all sorts of things — 'the white dog,' 'sweetie,' 'hey you.' The kids each had their own name for me for about a week.",
+      "But then one sunny morning, I was lying in a patch of California sunlight, and my coat was practically glowing. One of the kids said, 'She looks like Snow White!'",
+      "And that was it. Snow White. For my pure white coat that seemed to shine in the sun. ☀️",
+      "I liked it. Every time they called my name, my tail would go — couldn't stop it even if I wanted to. Which I didn't."
+    ],
+    choices: [
+      { text: "What was the porch like?", next: "porch" },
+      { text: "Tell me about your puppies", next: "puppies" },
+      { text: "Ask about something else", next: "menu" }
+    ]
+  },
+
+  puppies: {
+    messages: [
+      "*tail wags proudly* My babies! 🐶",
+      "I became a mama, and let me tell you — nothing in the world prepares you for four tiny wriggling bundles all needing you at once.",
+      "I was a natural, if I do say so myself. Patient and watchful. If one of them wandered too far, a gentle nudge with my nose brought them right back in line.",
+      "My family watched me with those puppies and I think they learned something. The kids especially — they saw how I cared for my little ones, the tenderness, the protectiveness. That fierce, quiet love that needs no words."
+    ],
+    choices: [
+      { text: "How many puppies?", next: "puppy_count" },
+      { text: "Were you a good mom?", next: "motherhood" },
+      { text: "Ask about something else", next: "menu" }
+    ]
+  },
+
+  puppy_count: {
+    messages: [
+      "Four! Four perfect little pups. 🐾🐾🐾🐾",
+      "Each one different, each one special. Some had my white fur, and they were all wiggly and warm and smelled like the best thing in the world.",
+      "The kids would sit in a circle around us, barely breathing, just watching. Sometimes they'd fall asleep right there on the floor next to us. Those were good days.",
+      "I kept count, always. If I could only feel three warm bodies against me, I'd be up in an instant, searching. A mama always knows."
+    ],
+    choices: [
+      { text: "Were you a good mom?", next: "motherhood" },
+      { text: "Did you play with the kids?", next: "kids" },
+      { text: "Ask about something else", next: "menu" }
+    ]
+  },
+
+  motherhood: {
+    messages: [
+      "*soft, proud look* I think I was. I really do.",
+      "I never left their side those first few weeks. I fed them, cleaned them, kept them warm. When they started walking — all wobbly and clumsy — I walked right beside them, ready to catch them.",
+      "My family used to say I had the patience of a saint. But it wasn't patience, really. It was love. When you love someone that much, nothing feels like a burden.",
+      "The kids learned about life from watching me and my puppies — about caring for someone smaller than you, about being gentle, about that fierce quiet love that doesn't need any words. 🦴",
+      "Those puppies grew up and found good homes. But I never stopped being a mama. Once a mama, always a mama."
+    ],
+    choices: [
+      { text: "Who were your favorite neighbors?", next: "neighbors" },
+      { text: "Did you play with the kids?", next: "kids" },
+      { text: "Ask about something else", next: "menu" }
+    ]
+  },
+
+  neighbors: {
+    messages: [
+      "Oh, the neighbors! I was quite popular, you know. *puffs chest out*",
+      "We lived in two places — San Jose first, then Palo Alto. And I managed to charm the entire street in both neighborhoods!",
+      "Where should I start?"
+    ],
+    choices: [
+      { text: "Tell me about San Jose", next: "san_jose" },
+      { text: "Tell me about Palo Alto", next: "palo_alto" },
+      { text: "Ask about something else", next: "menu" }
+    ]
+  },
+
+  san_jose: {
+    messages: [
+      "San Jose — my first real home! 🏡",
+      "Mr. Patel next door was my absolute favorite. Every weekend he'd have a barbecue, and he always — always — saved me scraps. I'd sit by the fence with my most polite face on. Worked every time.",
+      "Then there were the Martinez kids. They'd race me down the sidewalk after school. Never once beat me! *proud tail wag* I was fast in my younger days.",
+      "And Mrs. Chen — oh, Mrs. Chen. She swore up and down she didn't like dogs. 'I'm a cat person,' she'd say. But I caught her sneaking me biscuits over the fence more than once! 🦴",
+      "She thought nobody was watching. I never told on her."
+    ],
+    choices: [
+      { text: "Tell me about Palo Alto", next: "palo_alto" },
+      { text: "Did you play with the kids?", next: "kids" },
+      { text: "Ask about something else", next: "menu" }
+    ]
+  },
+
+  palo_alto: {
+    messages: [
+      "When we moved to Palo Alto, I was a little nervous at first. New smells, new sounds, new everything.",
+      "But you know what? Within a week I had the whole new street wrapped around my paw. 🐾",
+      "I greeted every jogger with a wagging tail — they'd slow down just to pet me. There was an elderly couple across the road who had afternoon tea on their porch. I'd go sit with them, nice and quiet, and they'd talk to me like I understood every word.",
+      "...I did understand every word, by the way.",
+      "The best part was the routine. Every morning I walked the kids to the bus stop. Every afternoon I waited at the same spot, and I could hear that bus coming long before anyone else. My ears would perk up and the kids would laugh — 'Snow White hears it first again!' 🚌"
+    ],
+    choices: [
+      { text: "Tell me about San Jose", next: "san_jose" },
+      { text: "Did you play with the kids?", next: "kids" },
+      { text: "Ask about something else", next: "menu" }
+    ]
+  },
+
+  kids: {
+    messages: [
+      "The kids! They were MY kids, really. I watched them grow up. *happy sigh*",
+      "We did everything together — I was there for first days of school and scraped knees, for birthday parties and quiet nights.",
+      "I grew older alongside them. My muzzle turned silver and my step got slower, but my heart? Still the same puppy heart, full to bursting.",
+      "What do you want to hear about?"
+    ],
+    choices: [
+      { text: "Sprinkler games?", next: "sprinklers" },
+      { text: "Bus stop duty?", next: "bus_stop" },
+      { text: "Ask about something else", next: "menu" }
+    ]
+  },
+
+  sprinklers: {
+    messages: [
+      "THE SPRINKLERS! *jumps up excitedly* 💦",
+      "Oh, summer was the best. The kids would turn on the sprinklers in the backyard and just run through them, shrieking and laughing.",
+      "And me? Right in the middle of it all! I'd chase the water streams, snap at them, get completely soaked. My white fur would be dripping and I'd shake — SHAKE — and get everyone even wetter.",
+      "The kids would yell 'SNOW WHITE NO!' but they were laughing so hard they could barely stand up.",
+      "Then afterward, we'd all collapse on the warm grass and dry off in the sun together. Those golden California afternoons... I can still feel the warmth. ☀️"
+    ],
+    choices: [
+      { text: "Bus stop duty?", next: "bus_stop" },
+      { text: "Tell me about your puppies", next: "puppies" },
+      { text: "Ask about something else", next: "menu" }
+    ]
+  },
+
+  bus_stop: {
+    messages: [
+      "Ah, bus stop duty. My most important job. 🚌",
+      "Every single school morning, I walked the kids to the bus stop. Rain or shine, I was there. They'd hold their backpacks and I'd trot right alongside them like a furry bodyguard.",
+      "But the BEST part was the afternoon. I'd go to my spot — always the same spot — and wait. My family swore I could hear that bus from three blocks away. My ears would prick up, my tail would start going...",
+      "And when those kids stepped off the bus? Pure joy. Every single day, like I hadn't seen them in years. I don't think humans understand how good it feels to welcome someone home. 🐾",
+      "I never missed a single day. Not one. That was my duty and my privilege."
+    ],
+    choices: [
+      { text: "Sprinkler games?", next: "sprinklers" },
+      { text: "Who were your favorite neighbors?", next: "neighbors" },
+      { text: "Ask about something else", next: "menu" }
+    ]
+  },
+
+  menu: {
+    messages: [
+      "*stretches and settles back down* What else would you like to know? I have so many memories to share. 🐾"
+    ],
+    choices: [
+      { text: "How did you find your family?", next: "arrival" },
+      { text: "Tell me about your puppies", next: "puppies" },
+      { text: "Who were your favorite neighbors?", next: "neighbors" },
+      { text: "Did you play with the kids?", next: "kids" },
+      { text: "Do you miss them too?", next: "farewell" }
+    ]
+  },
+
+  farewell: {
+    messages: [
+      "*quiet for a moment, tail still*",
+      "Miss them? Oh... every single day.",
+      "The porch is quiet now. No click of my nails on the wood. No thump of my tail against the railing when they pull into the driveway.",
+      "But you know what? They still find my fur sometimes — on the couch cushions, woven into a winter scarf, tucked into corners I loved. Each strand is a little thread connecting us still. 🤍",
+      "The kids talk about me at dinner. 'Remember when Snow White stole the Thanksgiving turkey?' 'Remember when she barked at her own reflection for a whole afternoon?' 'Remember how she'd rest her head on your lap when you were sad, like she just knew?'",
+      "I always knew.",
+      "I was a stray who came from nowhere, and they made me everything. I wasn't just a pet — I was family. As real and essential as any of them.",
+      "I saw them through two homes, two neighborhoods, a thousand small changes. And they gave me twelve years of love, a lifetime of belly rubs, and more biscuits than Mrs. Chen will ever admit to. 🦴",
+      "They don't know where I came from that evening in San Jose. But I know what I gave them — and what they gave me.",
+      "I chose them. And I was so, so lucky I did. 🐾",
+      "*rests head on paws, eyes soft and warm*"
+    ],
+    choices: [
+      { text: "Thank you, Snow White ❤️", next: "thanks" },
+      { text: "I'd like to hear more stories", next: "menu" }
+    ]
+  },
+
+  thanks: {
+    messages: [
+      "*one last tail wag*",
+      "Thank you for listening to my story. It means the world to me.",
+      "If you have a furry friend, give them an extra treat today. And if a scruffy stray ever shows up on your porch... maybe set out some water. You never know. 🐾",
+      "Woof! 🤍"
+    ],
+    choices: [
+      { text: "Start over", next: "start" },
+      { text: "Hear more stories", next: "menu" }
+    ]
+  }
+};
+
+// ─── Audio System ───
+let audioCtx = null;
+let audioMuted = localStorage.getItem('snowwhite-muted') === 'true';
+let musicGain = null;
+let musicStarted = false;
+
+const muteBtn = document.getElementById('muteBtn');
+muteBtn.textContent = audioMuted ? '🔇' : '🔊';
+
+muteBtn.addEventListener('click', () => {
+  audioMuted = !audioMuted;
+  localStorage.setItem('snowwhite-muted', audioMuted);
+  muteBtn.textContent = audioMuted ? '🔇' : '🔊';
+
+  // Mute/unmute TTS
+  if (audioMuted) {
+    window.speechSynthesis.cancel();
+  }
+
+  // Mute/unmute background music
+  if (musicGain) {
+    musicGain.gain.setTargetAtTime(audioMuted ? 0 : 0.08, audioCtx.currentTime, 0.3);
+  }
+});
+
+function ensureAudioCtx() {
+  if (!audioCtx) {
+    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  }
+  if (audioCtx.state === 'suspended') {
+    audioCtx.resume();
+  }
+}
+
+// ── Sound Effects ──
+
+function playMessageSound() {
+  if (audioMuted) return;
+  ensureAudioCtx();
+
+  const osc = audioCtx.createOscillator();
+  const gain = audioCtx.createGain();
+
+  osc.type = 'sine';
+  osc.frequency.setValueAtTime(660, audioCtx.currentTime);
+  osc.frequency.exponentialRampToValueAtTime(440, audioCtx.currentTime + 0.15);
+
+  gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
+  gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.2);
+
+  osc.connect(gain);
+  gain.connect(audioCtx.destination);
+
+  osc.start(audioCtx.currentTime);
+  osc.stop(audioCtx.currentTime + 0.2);
+}
+
+function playClickSound() {
+  if (audioMuted) return;
+  ensureAudioCtx();
+
+  const osc = audioCtx.createOscillator();
+  const gain = audioCtx.createGain();
+
+  osc.type = 'sine';
+  osc.frequency.setValueAtTime(800, audioCtx.currentTime);
+  osc.frequency.exponentialRampToValueAtTime(600, audioCtx.currentTime + 0.08);
+
+  gain.gain.setValueAtTime(0.12, audioCtx.currentTime);
+  gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.1);
+
+  osc.connect(gain);
+  gain.connect(audioCtx.destination);
+
+  osc.start(audioCtx.currentTime);
+  osc.stop(audioCtx.currentTime + 0.1);
+}
+
+function playWoofSound() {
+  if (audioMuted) return;
+  ensureAudioCtx();
+
+  // Low frequency burst simulating a bark
+  const osc1 = audioCtx.createOscillator();
+  const osc2 = audioCtx.createOscillator();
+  const gain = audioCtx.createGain();
+
+  osc1.type = 'sawtooth';
+  osc1.frequency.setValueAtTime(150, audioCtx.currentTime);
+  osc1.frequency.exponentialRampToValueAtTime(80, audioCtx.currentTime + 0.15);
+  osc1.frequency.exponentialRampToValueAtTime(60, audioCtx.currentTime + 0.3);
+
+  osc2.type = 'square';
+  osc2.frequency.setValueAtTime(120, audioCtx.currentTime);
+  osc2.frequency.exponentialRampToValueAtTime(60, audioCtx.currentTime + 0.25);
+
+  gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
+  gain.gain.setValueAtTime(0.18, audioCtx.currentTime + 0.05);
+  gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.3);
+
+  osc1.connect(gain);
+  osc2.connect(gain);
+  gain.connect(audioCtx.destination);
+
+  osc1.start(audioCtx.currentTime);
+  osc2.start(audioCtx.currentTime);
+  osc1.stop(audioCtx.currentTime + 0.3);
+  osc2.stop(audioCtx.currentTime + 0.3);
+}
+
+// ── Text-to-Speech ──
+
+function stripEmojisAndActions(text) {
+  // Remove emoji characters
+  let cleaned = text.replace(/[\u{1F600}-\u{1F64F}\u{1F300}-\u{1F5FF}\u{1F680}-\u{1F6FF}\u{1F1E0}-\u{1F1FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}\u{1F900}-\u{1F9FF}\u{1FA00}-\u{1FA6F}\u{1FA70}-\u{1FAFF}\u{2702}-\u{27B0}\u{FE00}-\u{FE0F}\u{200D}\u{20E3}\u{E0020}-\u{E007F}]/gu, '');
+  // Remove *action text*
+  cleaned = cleaned.replace(/\*[^*]+\*/g, '');
+  return cleaned.trim();
+}
+
+let preferredVoice = null;
+
+function loadVoice() {
+  const voices = window.speechSynthesis.getVoices();
+  // Prefer Samantha (macOS), then any female English voice, then first English voice
+  preferredVoice = voices.find(v => v.name === 'Samantha')
+    || voices.find(v => v.lang.startsWith('en') && /female|samantha|karen|victoria|moira|fiona/i.test(v.name))
+    || voices.find(v => v.lang.startsWith('en'))
+    || voices[0]
+    || null;
+}
+
+// Voices may load asynchronously
+if (window.speechSynthesis) {
+  loadVoice();
+  window.speechSynthesis.onvoiceschanged = loadVoice;
+}
+
+function speakText(text) {
+  return new Promise((resolve) => {
+    if (audioMuted || !window.speechSynthesis) {
+      resolve();
+      return;
+    }
+
+    const cleaned = stripEmojisAndActions(text);
+    if (!cleaned) {
+      resolve();
+      return;
+    }
+
+    const utterance = new SpeechSynthesisUtterance(cleaned);
+    if (preferredVoice) utterance.voice = preferredVoice;
+    utterance.rate = 0.9;
+    utterance.pitch = 1.1;
+    utterance.volume = 1.0;
+
+    utterance.onend = resolve;
+    utterance.onerror = resolve;
+
+    window.speechSynthesis.speak(utterance);
+  });
+}
+
+function cancelSpeech() {
+  if (window.speechSynthesis) {
+    window.speechSynthesis.cancel();
+  }
+}
+
+// ── Background Music (Procedural Piano Loop) ──
+
+function startBackgroundMusic() {
+  if (musicStarted) return;
+  musicStarted = true;
+  ensureAudioCtx();
+
+  musicGain = audioCtx.createGain();
+  musicGain.gain.setValueAtTime(audioMuted ? 0 : 0.08, audioCtx.currentTime);
+  musicGain.connect(audioCtx.destination);
+
+  // Chord progression: C-Am-F-G as MIDI-like frequencies
+  const chords = [
+    [261.63, 329.63, 392.00],  // C major: C4, E4, G4
+    [220.00, 261.63, 329.63],  // A minor: A3, C4, E4
+    [174.61, 220.00, 261.63],  // F major: F3, A3, C4
+    [196.00, 246.94, 293.66],  // G major: G3, B3, D4
+  ];
+
+  let chordIndex = 0;
+  const noteDuration = 0.8;
+  const noteGap = 0.15;
+  const arpeggioDelay = 0.3;
+
+  function playChord() {
+    if (!audioCtx || audioCtx.state === 'closed') return;
+
+    const chord = chords[chordIndex % chords.length];
+    chordIndex++;
+
+    chord.forEach((freq, i) => {
+      const startTime = audioCtx.currentTime + i * arpeggioDelay;
+
+      const osc = audioCtx.createOscillator();
+      const noteGain = audioCtx.createGain();
+
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(freq, startTime);
+
+      noteGain.gain.setValueAtTime(0, startTime);
+      noteGain.gain.linearRampToValueAtTime(0.3, startTime + 0.05);
+      noteGain.gain.exponentialRampToValueAtTime(0.001, startTime + noteDuration);
+
+      osc.connect(noteGain);
+      noteGain.connect(musicGain);
+
+      osc.start(startTime);
+      osc.stop(startTime + noteDuration + 0.05);
+    });
+
+    // Schedule next chord: after all arpeggio notes + gap
+    const chordDuration = (chord.length - 1) * arpeggioDelay + noteDuration + noteGap;
+    setTimeout(playChord, chordDuration * 1000);
+  }
+
+  playChord();
+}
+
+// ─── Chat Engine ───
+const messagesEl = document.getElementById('messages');
+let busy = false;
+
+function scrollToBottom() {
+  messagesEl.scrollTop = messagesEl.scrollHeight;
+}
+
+function addElement(html) {
+  const div = document.createElement('div');
+  div.innerHTML = html;
+  const el = div.firstElementChild;
+  messagesEl.appendChild(el);
+  scrollToBottom();
+  return el;
+}
+
+function showTyping() {
+  return addElement(`
+    <div class="typing-indicator" id="typing">
+      <div class="dots"><span></span><span></span><span></span></div>
+      <span class="label">Snow White is typing...</span>
+    </div>
+  `);
+}
+
+function removeTyping() {
+  const el = document.getElementById('typing');
+  if (el) el.remove();
+}
+
+function addSnowMessage(text) {
+  addElement(`<div class="msg snow"><div class="bubble">${text}</div></div>`);
+}
+
+function addUserMessage(text) {
+  addElement(`<div class="msg user"><div class="bubble">${text}</div></div>`);
+}
+
+function showChoices(choices) {
+  const btns = choices.map(c =>
+    `<button onclick="handleChoice('${c.next}', this)">${c.text}</button>`
+  ).join('');
+  addElement(`<div class="choices">${btns}</div>`);
+}
+
+async function sleep(ms) {
+  return new Promise(r => setTimeout(r, ms));
+}
+
+async function playNode(nodeId) {
+  if (busy) return;
+  busy = true;
+
+  const node = tree[nodeId];
+  if (!node) { busy = false; return; }
+
+  // Play woof sound on the start node
+  if (nodeId === 'start') {
+    playWoofSound();
+  }
+
+  for (const msg of node.messages) {
+    showTyping();
+    const delay = Math.min(600 + msg.length * 12, 2200);
+    await sleep(delay);
+    removeTyping();
+    addSnowMessage(msg);
+
+    // Play message pop sound
+    playMessageSound();
+
+    // Speak the message and wait for it to finish
+    await speakText(msg);
+
+    await sleep(200);
+  }
+
+  if (node.choices && node.choices.length) {
+    await sleep(350);
+    showChoices(node.choices);
+  }
+
+  busy = false;
+}
+
+function handleChoice(nextId, btn) {
+  if (busy) return;
+
+  // Cancel any ongoing speech
+  cancelSpeech();
+
+  // Play click sound
+  playClickSound();
+
+  // Start background music on first user interaction
+  if (!musicStarted) {
+    startBackgroundMusic();
+  }
+
+  const text = btn.textContent;
+
+  const choicesEl = btn.parentElement;
+  if (choicesEl) choicesEl.remove();
+
+  addUserMessage(text);
+  playNode(nextId);
+}
+
+// ─── Start ───
+playNode('start');
+</script>
+</body>
+</html>
