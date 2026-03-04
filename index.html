@@ -208,6 +208,39 @@
     border-radius: 4px;
   }
 
+  /* ---- Splash screen ---- */
+  .splash {
+    position: fixed;
+    inset: 0;
+    background: var(--bg);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 200;
+    text-align: center;
+    padding: 24px;
+    transition: opacity 0.4s ease;
+  }
+  .splash-avatar { font-size: 72px; margin-bottom: 16px; }
+  .splash h2 { font-size: 1.5rem; font-weight: 700; margin-bottom: 8px; }
+  .splash p { font-size: 0.9rem; color: var(--text-light); margin-bottom: 32px; line-height: 1.6; }
+  .start-btn {
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    padding: 14px 40px;
+    border-radius: 30px;
+    font-size: 1rem;
+    font-family: inherit;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.15s;
+    box-shadow: 0 4px 20px rgba(201, 149, 107, 0.4);
+  }
+  .start-btn:hover { background: var(--accent-hover); transform: scale(1.04); }
+  .start-btn:active { transform: scale(0.97); }
+
   /* ---- Responsive ---- */
   @media (max-width: 480px) {
     .header { padding: 16px 12px 8px; }
@@ -219,6 +252,13 @@
 </style>
 </head>
 <body>
+
+<div class="splash" id="splash">
+  <div class="splash-avatar">🐾</div>
+  <h2>Snow White</h2>
+  <p>An interactive story with voice &amp; music<br>Best experienced with headphones</p>
+  <button class="start-btn" onclick="startStory()">Tap to begin</button>
+</div>
 
 <div class="header">
   <div class="avatar">🐾</div>
@@ -435,7 +475,114 @@ const tree = {
       { text: "Tell me about your puppies", next: "puppies" },
       { text: "Who were your favorite neighbors?", next: "neighbors" },
       { text: "Did you play with the kids?", next: "kids" },
-      { text: "Do you miss them too?", next: "farewell" }
+      { text: "Do you miss them too?", next: "farewell" },
+      { text: "How did we first meet?", next: "how_we_met" },
+      { text: "Snow White and her puppies", next: "snow_and_puppies" },
+      { text: "The crazy runner!", next: "crazy_runner" },
+      { text: "Shakti's morning ritual", next: "shakti_morning" },
+      { text: "Training stories", next: "training" },
+      { text: "At the very end...", next: "deathbed" }
+    ]
+  },
+
+  how_we_met: {
+    messages: [
+      "*sits up straight, tail sweeping slowly* Oh, you want to hear how it really started? From my side of the porch?",
+      "I had been wandering for weeks — city blocks blur together when you have no one. But that evening in San Jose, something was different. A smell. Warmth. The sound of children laughing inside a house.",
+      "I sat at the end of the driveway for a long time. Just... watching. Through the window I could see a family moving around — the mum in the kitchen, the dad on the sofa, the kids tumbling over each other.",
+      "Something told me: walk up. So I did. Slow, quiet, tail low. I settled on the porch and waited.",
+      "It didn't take long. A little face appeared at the screen door, eyes wide. Then another. Then whispering — urgent, excited whispering. Then the dad came to look.",
+      "He didn't shoo me away. He just looked at me for a long moment, and I looked back. That was the whole agreement. Everything else was just paperwork. 🐾"
+    ],
+    choices: [
+      { text: "What happened next?", next: "arrival" },
+      { text: "Did they name you right away?", next: "naming" },
+      { text: "Ask about something else", next: "menu" }
+    ]
+  },
+
+  snow_and_puppies: {
+    messages: [
+      "*soft, proud look* Four puppies. Let me tell you what nobody tells you about four puppies.",
+      "The noise alone. Four tiny voices, all hungry at once, all certain their need was the most urgent. I was run off my paws for weeks.",
+      "But the family — they gathered around us like we were something sacred. The kids would tiptoe in, sit cross-legged in a circle, and just watch. Barely breathing. Like they were afraid to break the spell.",
+      "Shakti — she was the gentlest. She'd reach out one careful finger and touch a puppy's ear so softly. Then look at me as if asking permission. I always gave it.",
+      "Some nights the kids fell asleep right there on the floor with us. The mum would find everyone tangled together — children, puppies, me in the middle keeping watch.",
+      "I didn't sleep those first weeks. A mother doesn't sleep. But I didn't mind. I had everything I ever needed, right there in that warm pile. 🐶"
+    ],
+    choices: [
+      { text: "Were you a good mom?", next: "motherhood" },
+      { text: "Tell me about the crazy running days", next: "crazy_runner" },
+      { text: "Ask about something else", next: "menu" }
+    ]
+  },
+
+  crazy_runner: {
+    messages: [
+      "*jumps to feet, suddenly alert* Oh! The RUNNING. Now you're talking. 🐾",
+      "There was a park near our house in San Jose — wide open grass, the kind that goes all the way to the treeline. That was my kingdom.",
+      "I would run. Not trot, not jog — full sprint, ears flat, paws barely touching the ground. The puppies would scramble after me, all stumbling legs and big paws they hadn't grown into yet. They never caught me.",
+      "The kids would chase too — Shakti shrieking, the others calling my name. I'd loop back, dodge left, dart right. They never caught me either. Not once in twelve years. *proud tail wag*",
+      "Sometimes I'd flop into the grass suddenly — all four paws in the air — and just roll. Pure joy. The kids thought this was the funniest thing they'd ever seen and would pile on top.",
+      "Those afternoons in the park, grass stains on everyone, completely worn out, piled in the car on the way home — those were the best days. The very best. ☀️"
+    ],
+    choices: [
+      { text: "Tell me about Shakti's mornings", next: "shakti_morning" },
+      { text: "Tell me about the puppies", next: "snow_and_puppies" },
+      { text: "Ask about something else", next: "menu" }
+    ]
+  },
+
+  shakti_morning: {
+    messages: [
+      "*ears perk up softly* Shakti. My girl.",
+      "Every school morning, she'd come to her room to get dressed, and I'd follow her in and sit by the wardrobe. Just sit. And she'd talk to me.",
+      "Not in the way you'd talk to a pet. In the way you'd talk to a best friend. She'd hold up a dress and say 'Snow White, does this look okay?' And I'd tilt my head one way or the other — she always said I had opinions.",
+      "She'd tell me about the test she was nervous for, the friend she'd had a fight with, the thing she was hoping would happen that day. I listened to all of it. Every word. *tail wag*",
+      "I think she needed someone who wouldn't give advice. Someone who would just receive it all. Hold it gently. Not tell her what to do.",
+      "When she was ready, she'd squat down, look me right in the eyes and say 'Okay Snow White, wish me luck.' And I'd give her nose a little lick.",
+      "Then we'd walk to the bus stop together. She'd wave from the window as the bus pulled away. I always waited until I couldn't see it anymore. 🚌"
+    ],
+    choices: [
+      { text: "Tell me about the bus stop", next: "bus_stop" },
+      { text: "Who else did you have a special bond with?", next: "kids" },
+      { text: "Ask about something else", next: "menu" }
+    ]
+  },
+
+  training: {
+    messages: [
+      "*snorts softly* Training. Yes. Let's talk about that.",
+      "When I was young, they tried. Oh, they tried. A proper trainer came to the house with treats and a clicker and a very confident expression.",
+      "He said 'sit.' I looked at him. He said it again, louder. I yawned. He said it a third time with the treat right in front of my nose. I took the treat and walked away.",
+      "The kids thought this was wonderful. The trainer did not return.",
+      "Here's the truth: I wasn't being stubborn. I just didn't understand why yet. Commands without relationship are just noise.",
+      "But years passed. I watched them. I learned what a worried face looked like, what a sad voice meant, what it meant when someone sat very still and needed company. I learned them.",
+      "By the time I was old, I didn't need commands. I knew. Dad heading to bed with a bad back? I'd already be there, settled at his feet. Mum crying quietly in the kitchen? I'd press against her leg before she even called me.",
+      "That trainer would have called it failure. I call it a different kind of success. 🐾"
+    ],
+    choices: [
+      { text: "Tell me about Shakti's mornings", next: "shakti_morning" },
+      { text: "Do you miss them too?", next: "farewell" },
+      { text: "Ask about something else", next: "menu" }
+    ]
+  },
+
+  deathbed: {
+    messages: [
+      "*very still, eyes deep and quiet*",
+      "You know what humans do at the end? The things they finally say out loud — to us?",
+      "I've been in the room for every hard moment in that family. The whispered worries, the 3am crying, the long silences that said more than words.",
+      "There's something about us — dogs — that makes the truth come easier. You can say anything to us. We won't flinch. We won't judge. We won't tell anyone. We'll just stay.",
+      "The family used to say, half-joking: 'Snow White is the only one who knows all our secrets.' They weren't wrong.",
+      "I think about this sometimes — the gift of being the creature someone turns to at the very end. Not because we understand every word. But because we understand everything that matters. The fear. The love. The hope that it was all worth it.",
+      "I would have stayed. To the last breath, I would have stayed and listened and not moved from their side.",
+      "That's all any of us can do, really. Stay. And mean it. 🤍"
+    ],
+    choices: [
+      { text: "Thank you, Snow White ❤️", next: "thanks" },
+      { text: "Tell me how you miss them", next: "farewell" },
+      { text: "Ask about something else", next: "menu" }
     ]
   },
 
@@ -811,7 +958,14 @@ function handleChoice(nextId, btn) {
 }
 
 // ─── Start ───
-playNode('start');
+function startStory() {
+  const splash = document.getElementById('splash');
+  splash.style.opacity = '0';
+  setTimeout(() => splash.remove(), 400);
+  ensureAudioCtx();
+  startBackgroundMusic();
+  playNode('start');
+}
 </script>
 </body>
 </html>

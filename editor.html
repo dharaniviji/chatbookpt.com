@@ -1,0 +1,561 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Story Editor — ChatBookPT</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #faf7f2;
+    --panel: #fff;
+    --snow-bubble: #fff8f0;
+    --snow-border: #f0e0cc;
+    --user-bubble: #e8ddd0;
+    --accent: #c9956b;
+    --accent-hover: #b07d55;
+    --text: #4a3728;
+    --text-light: #8a7565;
+    --shadow: rgba(120, 80, 40, 0.08);
+    --danger: #c0392b;
+  }
+  body {
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100dvh;
+  }
+
+  /* ── Top bar ── */
+  .topbar {
+    background: var(--panel);
+    border-bottom: 1px solid var(--snow-border);
+    padding: 12px 24px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    box-shadow: 0 1px 4px var(--shadow);
+    position: sticky; top: 0; z-index: 100;
+  }
+  .topbar h1 { font-size: 1rem; font-weight: 700; flex: 1; }
+  .file-info { font-size: 0.78rem; color: var(--text-light); font-style: italic; }
+  .unsaved-dot {
+    width: 8px; height: 8px;
+    background: var(--accent);
+    border-radius: 50%;
+    display: none;
+  }
+  .unsaved-dot.visible { display: inline-block; }
+
+  /* ── Buttons ── */
+  .btn {
+    padding: 8px 18px; border-radius: 20px; border: none;
+    font-size: 0.85rem; cursor: pointer; font-family: inherit; font-weight: 500;
+    transition: background 0.15s, transform 0.1s, opacity 0.15s;
+    white-space: nowrap;
+  }
+  .btn:active { transform: scale(0.97); }
+  .btn:disabled { opacity: 0.4; cursor: not-allowed; }
+  .btn-primary { background: var(--accent); color: #fff; }
+  .btn-primary:not(:disabled):hover { background: var(--accent-hover); }
+  .btn-secondary { background: var(--snow-bubble); color: var(--text); border: 1px solid var(--snow-border); }
+  .btn-secondary:hover { background: var(--user-bubble); }
+  .btn-danger { background: #fff0f0; color: var(--danger); border: 1px solid #fcc; }
+  .btn-danger:hover { background: #ffe0e0; }
+  .btn-sm { padding: 5px 12px; font-size: 0.78rem; }
+
+  /* ── Main layout ── */
+  .main {
+    display: grid;
+    grid-template-columns: 1fr 400px;
+    height: calc(100dvh - 53px);
+    overflow: hidden;
+  }
+
+  /* ── Left: table ── */
+  .table-panel { overflow-y: auto; padding: 24px; border-right: 1px solid var(--snow-border); }
+  .panel-header {
+    display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px;
+  }
+  .panel-header h2 { font-size: 0.95rem; font-weight: 700; }
+
+  table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+  thead th {
+    text-align: left; padding: 9px 12px;
+    background: var(--snow-bubble); border-bottom: 2px solid var(--snow-border);
+    font-weight: 700; font-size: 0.72rem; color: var(--text-light);
+    text-transform: uppercase; letter-spacing: 0.5px;
+  }
+  tbody tr { border-bottom: 1px solid var(--snow-border); cursor: pointer; transition: background 0.12s; }
+  tbody tr:hover { background: var(--snow-bubble); }
+  tbody tr.active { background: #fff0e6; }
+  tbody td { padding: 9px 12px; vertical-align: middle; }
+
+  .node-id { font-family: monospace; font-weight: 700; font-size: 0.82rem; color: var(--accent); }
+  .preview { color: var(--text-light); max-width: 240px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 0.82rem; }
+  .badge {
+    display: inline-block; background: var(--snow-bubble); border: 1px solid var(--snow-border);
+    border-radius: 10px; padding: 2px 7px; font-size: 0.72rem; color: var(--text-light);
+  }
+  .row-actions { display: flex; gap: 5px; }
+  .add-node-row { margin-top: 16px; text-align: right; }
+
+  /* ── Right: form panel ── */
+  .form-panel { overflow-y: auto; padding: 24px; background: var(--panel); }
+  .form-panel h2 { font-size: 0.95rem; font-weight: 700; margin-bottom: 18px; }
+
+  .mode-tabs {
+    display: flex; gap: 2px; background: var(--snow-bubble);
+    border-radius: 10px; padding: 3px; margin-bottom: 18px;
+  }
+  .mode-tab {
+    flex: 1; text-align: center; padding: 7px; border-radius: 7px;
+    font-size: 0.8rem; cursor: pointer; border: none; background: none;
+    font-family: inherit; color: var(--text-light); transition: background 0.12s, color 0.12s;
+  }
+  .mode-tab.active {
+    background: var(--panel); color: var(--text); font-weight: 700;
+    box-shadow: 0 1px 3px var(--shadow);
+  }
+
+  .form-section { margin-bottom: 18px; }
+  .form-section label {
+    display: block; font-size: 0.72rem; font-weight: 700; color: var(--text-light);
+    text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px;
+  }
+  input[type="text"], textarea {
+    width: 100%; padding: 8px 11px; border: 1px solid var(--snow-border);
+    border-radius: 8px; font-family: inherit; font-size: 0.88rem; color: var(--text);
+    background: var(--snow-bubble); transition: border-color 0.15s, background 0.15s; resize: vertical;
+  }
+  input[type="text"]:focus, textarea:focus { outline: none; border-color: var(--accent); background: #fff; }
+  textarea { min-height: 64px; }
+
+  .message-row, .choice-row {
+    display: flex; gap: 6px; align-items: flex-start; margin-bottom: 7px;
+  }
+  .message-row textarea { flex: 1; }
+  .choice-row input { flex: 1; }
+  .choice-arrow { padding: 8px 2px; color: var(--text-light); font-size: 1rem; flex-shrink: 0; line-height: 1; }
+  .choice-target { flex: 0 0 110px !important; font-family: monospace; font-size: 0.8rem; }
+  .remove-btn {
+    background: none; border: none; cursor: pointer; color: #ccc;
+    font-size: 1.1rem; padding: 5px 3px; line-height: 1; transition: color 0.12s;
+    flex-shrink: 0; margin-top: 1px;
+  }
+  .remove-btn:hover { color: var(--danger); }
+  .add-row-btn {
+    font-size: 0.75rem; padding: 5px 10px; border-radius: 12px;
+    background: none; border: 1px dashed var(--snow-border); color: var(--text-light);
+    cursor: pointer; font-family: inherit; width: 100%; margin-top: 3px;
+    transition: border-color 0.12s, color 0.12s, background 0.12s;
+  }
+  .add-row-btn:hover { border-color: var(--accent); color: var(--accent); background: var(--snow-bubble); }
+  .form-footer {
+    display: flex; gap: 8px; margin-top: 20px;
+    padding-top: 16px; border-top: 1px solid var(--snow-border);
+  }
+  .hint { font-size: 0.72rem; color: var(--text-light); margin-top: 4px; }
+
+  /* view mode */
+  .view-message {
+    background: var(--snow-bubble); border: 1px solid var(--snow-border);
+    border-radius: 14px; border-bottom-left-radius: 4px;
+    padding: 10px 13px; margin-bottom: 7px; font-size: 0.88rem; line-height: 1.55;
+  }
+  .view-choices { margin-top: 14px; }
+  .view-choice { display: flex; align-items: center; gap: 7px; margin-bottom: 6px; font-size: 0.82rem; }
+  .view-choice-label { background: var(--accent); color: #fff; padding: 5px 12px; border-radius: 14px; flex: 1; }
+  .view-choice-arrow { color: var(--text-light); flex-shrink: 0; }
+  .view-choice-target {
+    font-family: monospace; font-size: 0.78rem; background: var(--snow-bubble);
+    border: 1px solid var(--snow-border); padding: 3px 8px; border-radius: 6px;
+    color: var(--accent); white-space: nowrap;
+  }
+
+  /* empty state */
+  .empty-state { text-align: center; padding: 48px 16px; color: var(--text-light); }
+  .empty-state .icon { font-size: 40px; margin-bottom: 10px; }
+  .empty-state p { font-size: 0.88rem; line-height: 1.6; }
+  .empty-state strong { color: var(--text); }
+
+  /* toast */
+  .toast {
+    position: fixed; bottom: 20px; right: 20px; color: #fff;
+    padding: 11px 18px; border-radius: 10px; font-size: 0.85rem; font-weight: 500;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.18); z-index: 999;
+    animation: toastIn 0.25s ease;
+  }
+  @keyframes toastIn {
+    from { transform: translateY(12px); opacity: 0; }
+    to   { transform: translateY(0);    opacity: 1; }
+  }
+
+  @media (max-width: 720px) {
+    .main { grid-template-columns: 1fr; height: auto; overflow: visible; }
+    .table-panel { border-right: none; border-bottom: 1px solid var(--snow-border); }
+    .form-panel { min-height: 50vh; }
+  }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <h1>🐾 Story Editor</h1>
+  <span class="file-info" id="fileInfo">No file open</span>
+  <span class="unsaved-dot" id="unsavedDot" title="Unsaved changes"></span>
+  <button class="btn btn-secondary" onclick="openFile()">Open .md file</button>
+  <button class="btn btn-primary" id="saveBtn" onclick="saveFile()" disabled>Save</button>
+</div>
+
+<div class="main">
+  <div class="table-panel" id="tablePanel">
+    <div class="empty-state">
+      <div class="icon">📖</div>
+      <p>Click <strong>Open .md file</strong> to load<br><code>snow-white-our-beloved.md</code><br>and start editing.</p>
+    </div>
+  </div>
+  <div class="form-panel" id="formPanel">
+    <div class="empty-state" style="padding-top:64px">
+      <div class="icon">✏️</div>
+      <p>Open the story file,<br>then select a node or add a new one.</p>
+    </div>
+  </div>
+</div>
+
+<script>
+let fileHandle = null;
+let nodes = [];       // [{ id, messages: [], choices: [{text, next}] }]
+let selectedId = null;
+
+// ─── File API ─────────────────────────────────────────────────
+
+async function openFile() {
+  if (!window.showOpenFilePicker) {
+    alert('Your browser doesn\'t support the File System Access API.\nPlease use Chrome or Edge.');
+    return;
+  }
+  try {
+    [fileHandle] = await window.showOpenFilePicker({
+      types: [{ description: 'Markdown Files', accept: { 'text/markdown': ['.md'] } }]
+    });
+    const file = await fileHandle.getFile();
+    const text = await file.text();
+    nodes = parseMd(text);
+    document.getElementById('fileInfo').textContent = file.name;
+    document.getElementById('saveBtn').disabled = false;
+    setDirty(false);
+    renderTable();
+    showAddForm();
+  } catch (e) {
+    if (e.name !== 'AbortError') showToast('Could not open file: ' + e.message, true);
+  }
+}
+
+async function saveFile() {
+  if (!fileHandle) return;
+  try {
+    const writable = await fileHandle.createWritable();
+    await writable.write(serializeMd(nodes));
+    await writable.close();
+    setDirty(false);
+    showToast('Saved ✓');
+  } catch (e) {
+    showToast('Save failed: ' + e.message, true);
+  }
+}
+
+function setDirty(val) {
+  document.getElementById('unsavedDot').classList.toggle('visible', val);
+}
+
+// ─── Parse .md ────────────────────────────────────────────────
+//
+// Format:
+//   ## node_id
+//   - message line
+//   > Button label -> next_id
+//   ---
+
+function parseMd(text) {
+  const sections = text.split(/\n---\n/).map(s => s.trim()).filter(Boolean);
+  const result = [];
+  for (const section of sections) {
+    const lines = section.split('\n');
+    let id = null;
+    const messages = [];
+    const choices = [];
+    for (const line of lines) {
+      const trimmed = line.trim();
+      if (trimmed.startsWith('## ')) {
+        id = trimmed.slice(3).trim();
+      } else if (trimmed.startsWith('- ')) {
+        messages.push(trimmed.slice(2).trim());
+      } else if (trimmed.startsWith('> ')) {
+        const inner = trimmed.slice(2).trim();
+        const arrowIdx = inner.lastIndexOf(' -> ');
+        if (arrowIdx !== -1) {
+          choices.push({ text: inner.slice(0, arrowIdx).trim(), next: inner.slice(arrowIdx + 4).trim() });
+        }
+      }
+    }
+    if (id && messages.length) result.push({ id, messages, choices });
+  }
+  return result;
+}
+
+// ─── Serialize back to .md ────────────────────────────────────
+
+function serializeMd(nodes) {
+  const sections = nodes.map(n => {
+    const msgLines    = n.messages.map(m => `- ${m}`).join('\n');
+    const choiceLines = n.choices.map(c => `> ${c.text} -> ${c.next}`).join('\n');
+    return `## ${n.id}\n\n${msgLines}${choiceLines ? '\n' + choiceLines : ''}`;
+  });
+  return '\n\n' + sections.join('\n\n---\n\n') + '\n\n---\n\n*In loving memory of Snow White*\n*Our porch angel, our loyal friend, our family*\n';
+}
+
+// ─── Table ────────────────────────────────────────────────────
+
+function renderTable() {
+  document.getElementById('tablePanel').innerHTML = `
+    <div class="panel-header">
+      <h2>Story Nodes &nbsp;<span class="badge">${nodes.length}</span></h2>
+    </div>
+    <table>
+      <thead>
+        <tr>
+          <th>Node ID</th>
+          <th>First Message</th>
+          <th>Msgs</th>
+          <th>Choices</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        ${nodes.map(n => `
+          <tr class="${selectedId === n.id ? 'active' : ''}" onclick="selectNode('${esc(n.id)}')">
+            <td><span class="node-id">${esc(n.id)}</span></td>
+            <td><span class="preview">${esc(n.messages[0] || '')}</span></td>
+            <td><span class="badge">${n.messages.length}</span></td>
+            <td><span class="badge">${n.choices.length}</span></td>
+            <td>
+              <div class="row-actions">
+                <button class="btn btn-secondary btn-sm" onclick="event.stopPropagation();editNode('${esc(n.id)}')">Edit</button>
+                <button class="btn btn-danger btn-sm"    onclick="event.stopPropagation();deleteNode('${esc(n.id)}')">✕</button>
+              </div>
+            </td>
+          </tr>`).join('')}
+      </tbody>
+    </table>
+    <div class="add-node-row">
+      <button class="btn btn-primary" onclick="showAddForm()">+ Add New Node</button>
+    </div>
+  `;
+}
+
+// ─── View ─────────────────────────────────────────────────────
+
+function selectNode(id) {
+  selectedId = id;
+  renderTable();
+  const n = nodes.find(x => x.id === id);
+  document.getElementById('formPanel').innerHTML = `
+    ${tabs(id, 'view')}
+    <div>
+      ${n.messages.map(m => `<div class="view-message">${esc(m)}</div>`).join('')}
+    </div>
+    ${n.choices.length ? `
+      <div class="view-choices">
+        ${n.choices.map(c => `
+          <div class="view-choice">
+            <span class="view-choice-label">${esc(c.text)}</span>
+            <span class="view-choice-arrow">→</span>
+            <span class="view-choice-target">${esc(c.next)}</span>
+          </div>`).join('')}
+      </div>` : ''}
+  `;
+}
+
+// ─── Edit ─────────────────────────────────────────────────────
+
+function editNode(id) {
+  selectedId = id;
+  renderTable();
+  const n = nodes.find(x => x.id === id);
+  document.getElementById('formPanel').innerHTML = `
+    ${tabs(id, 'edit')}
+    <form onsubmit="saveEdit(event,'${esc(id)}')">
+      <div class="form-section">
+        <label>Node ID</label>
+        <input type="text" value="${escAttr(id)}" disabled style="opacity:.6;cursor:not-allowed">
+      </div>
+      <div class="form-section">
+        <label>Messages</label>
+        <div id="ed-msgs">
+          ${n.messages.map(m => msgRow(escAttr(m))).join('')}
+        </div>
+        <button type="button" class="add-row-btn" onclick="addMsgRow('ed-msgs')">+ Add message</button>
+      </div>
+      <div class="form-section">
+        <label>Choices</label>
+        <div id="ed-choices">
+          ${n.choices.map(c => choiceRow(escAttr(c.text), escAttr(c.next))).join('')}
+        </div>
+        <button type="button" class="add-row-btn" onclick="addChoiceRow('ed-choices')">+ Add choice</button>
+      </div>
+      <div class="form-footer">
+        <button type="submit" class="btn btn-primary" style="flex:1">Save Changes</button>
+        <button type="button" class="btn btn-secondary" onclick="selectNode('${esc(id)}')">Cancel</button>
+      </div>
+    </form>
+  `;
+}
+
+function saveEdit(e, id) {
+  e.preventDefault();
+  const messages = collectMsgs('ed-msgs');
+  const choices  = collectChoices('ed-choices');
+  if (!messages.length) { alert('Add at least one message.'); return; }
+  const n = nodes.find(x => x.id === id);
+  n.messages = messages;
+  n.choices  = choices;
+  setDirty(true);
+  renderTable();
+  selectNode(id);
+  showToast('Node updated ✓');
+}
+
+// ─── Add New ──────────────────────────────────────────────────
+
+function showAddForm() {
+  selectedId = null;
+  renderTable();
+  document.getElementById('formPanel').innerHTML = `
+    <h2>✨ Add New Node</h2>
+    <form onsubmit="addNode(event)">
+      <div class="form-section">
+        <label>Node ID</label>
+        <input type="text" id="new-id" placeholder="e.g. winter_walks" required
+          pattern="[a-z0-9_]+" title="Lowercase letters, numbers, underscores only">
+        <div class="hint">Lowercase, no spaces — use underscores</div>
+      </div>
+      <div class="form-section">
+        <label>Messages</label>
+        <div id="new-msgs">${msgRow('')}</div>
+        <button type="button" class="add-row-btn" onclick="addMsgRow('new-msgs')">+ Add message</button>
+      </div>
+      <div class="form-section">
+        <label>Choices (Quick Replies)</label>
+        <div id="new-choices">${choiceRow('', '')}</div>
+        <button type="button" class="add-row-btn" onclick="addChoiceRow('new-choices')">+ Add choice</button>
+        <div class="hint">Button label → target node ID</div>
+      </div>
+      <div class="form-footer">
+        <button type="submit" class="btn btn-primary" style="flex:1">Add Node</button>
+      </div>
+    </form>
+  `;
+  document.getElementById('new-id').focus();
+}
+
+function addNode(e) {
+  e.preventDefault();
+  const id = document.getElementById('new-id').value.trim();
+  if (!id) return;
+  if (nodes.find(n => n.id === id)) { alert(`Node "${id}" already exists.`); return; }
+  const messages = collectMsgs('new-msgs');
+  const choices  = collectChoices('new-choices');
+  if (!messages.length) { alert('Add at least one message.'); return; }
+  nodes.push({ id, messages, choices });
+  setDirty(true);
+  selectedId = id;
+  renderTable();
+  selectNode(id);
+  showToast(`Node "${id}" added ✓`);
+}
+
+function deleteNode(id) {
+  if (!confirm(`Delete node "${id}"?`)) return;
+  nodes = nodes.filter(n => n.id !== id);
+  setDirty(true);
+  if (selectedId === id) selectedId = null;
+  renderTable();
+  if (!selectedId) {
+    document.getElementById('formPanel').innerHTML = `
+      <div class="empty-state" style="padding-top:64px">
+        <div class="icon">✏️</div>
+        <p>Select a node to view it,<br>or add a new one.</p>
+      </div>`;
+  }
+  showToast(`Node "${id}" deleted`);
+}
+
+// ─── Row helpers ──────────────────────────────────────────────
+
+function msgRow(value = '') {
+  return `<div class="message-row">
+    <textarea placeholder="What Snow White says...">${value}</textarea>
+    <button type="button" class="remove-btn" onclick="removeRow(this)">×</button>
+  </div>`;
+}
+
+function choiceRow(text = '', next = '') {
+  return `<div class="choice-row">
+    <input type="text" placeholder="Button label" value="${text}">
+    <span class="choice-arrow">→</span>
+    <input type="text" class="choice-target" placeholder="node_id" value="${next}">
+    <button type="button" class="remove-btn" onclick="removeRow(this)">×</button>
+  </div>`;
+}
+
+function addMsgRow(id) {
+  const c = document.getElementById(id);
+  c.insertAdjacentHTML('beforeend', msgRow(''));
+  c.lastElementChild.querySelector('textarea').focus();
+}
+function addChoiceRow(id) {
+  const c = document.getElementById(id);
+  c.insertAdjacentHTML('beforeend', choiceRow('', ''));
+  c.lastElementChild.querySelector('input').focus();
+}
+function removeRow(btn) { btn.closest('.message-row, .choice-row').remove(); }
+
+function collectMsgs(id) {
+  return [...document.querySelectorAll(`#${id} textarea`)].map(t => t.value.trim()).filter(Boolean);
+}
+function collectChoices(id) {
+  return [...document.querySelectorAll(`#${id} .choice-row`)].map(row => {
+    const [a, b] = row.querySelectorAll('input');
+    return { text: a.value.trim(), next: b.value.trim() };
+  }).filter(c => c.text && c.next);
+}
+
+// ─── Misc helpers ─────────────────────────────────────────────
+
+function tabs(id, active) {
+  return `<div class="mode-tabs">
+    <button class="mode-tab ${active==='view'?'active':''}" type="button" onclick="selectNode('${esc(id)}')">View</button>
+    <button class="mode-tab ${active==='edit'?'active':''}" type="button" onclick="editNode('${esc(id)}')">Edit</button>
+  </div>`;
+}
+
+function esc(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+function escAttr(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/'/g,'&#x27;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function showToast(msg, isError = false) {
+  document.querySelector('.toast')?.remove();
+  const t = document.createElement('div');
+  t.className = 'toast';
+  t.style.background = isError ? '#b22' : '#2d6a4f';
+  t.textContent = msg;
+  document.body.appendChild(t);
+  setTimeout(() => t.remove(), 2800);
+}
+</script>
+</body>
+</html>
