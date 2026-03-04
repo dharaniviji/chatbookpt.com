@@ -777,8 +777,11 @@ function speakText(text) {
     utterance.pitch = 1.1;
     utterance.volume = 1.0;
 
-    utterance.onend = resolve;
-    utterance.onerror = resolve;
+    // iOS Safari sometimes never fires onend — timeout ensures the story continues
+    const timeout = setTimeout(resolve, Math.max(4000, cleaned.length * 65));
+    const done = () => { clearTimeout(timeout); resolve(); };
+    utterance.onend = done;
+    utterance.onerror = done;
 
     window.speechSynthesis.speak(utterance);
   });
