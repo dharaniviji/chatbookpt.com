@@ -1,13 +1,24 @@
 
 
+# Snow White: The Dog Who Chose Us
+
+*A family memoir — told in her own words*
+
+<!--
+  FORMAT:
+    ## node_id        — A conversation node
+    - message text    — What Snow White says (one bubble per line)
+    > Button label -> next_node_id   — A quick-reply choice
+-->
+
+---
+
 ## start
 
-- message text    — What Snow White says (one bubble per line)
 - Woof! Hello there! *wags tail* 🐾
 - My name is Snow White. I'm a scruffy little white dog with soft brown eyes — at least that's what my family always said.
 - I showed up on their porch one evening in San Jose, and I never left. Twelve wonderful years together.
 - What would you like to hear about?
-> Button label -> next_node_id   — A quick-reply choice
 > How did you find your family? -> arrival
 > Tell me about your puppies -> puppies
 > Who were your favorite neighbors? -> neighbors
@@ -32,7 +43,7 @@
 
 ## porch
 
-- Oh, that porch... *rests chin on paws
+- Oh, that porch... *rests chin on paws*
 - It was wooden, a little creaky, with a railing I liked to thump my tail against whenever someone came home. There was a worn welcome mat that smelled like everyone who'd ever stepped on it — I loved that.
 - That first night I curled up right next to the door. I could hear them inside, talking about me. The littlest one kept saying 'the white doggy is sleeping outside!' in this worried voice.
 - The next morning, the dad came out with a blanket and more food. He sat with me for a while, just quiet. That's when I knew — these were my people. 🐾
