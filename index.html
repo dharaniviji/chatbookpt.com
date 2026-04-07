@@ -242,6 +242,31 @@
   .start-btn:hover { background: var(--accent-hover); transform: scale(1.04); }
   .start-btn:active { transform: scale(0.97); }
 
+  /* ---- Write banner ---- */
+  .write-banner {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 28px;
+    padding: 10px 18px;
+    background: var(--snow-bubble);
+    border: 1px solid var(--snow-border);
+    border-radius: 12px;
+    text-decoration: none;
+    color: var(--text-light);
+    font-size: 0.8rem;
+    transition: background 0.2s, color 0.2s, transform 0.15s;
+  }
+  .write-banner:hover {
+    background: var(--user-bubble);
+    color: var(--text);
+    transform: scale(1.03);
+  }
+  .write-banner .banner-arrow {
+    font-size: 0.75rem;
+    opacity: 0.6;
+  }
+
   /* ---- Responsive ---- */
   @media (max-width: 480px) {
     .header { padding: 16px 12px 8px; }
@@ -260,6 +285,10 @@
   <p>An interactive story with voice &amp; music<br>Best experienced with headphones</p>
   <p style="font-size:0.75rem;color:var(--text-light);font-style:italic;margin-top:12px;max-width:280px;line-height:1.6">A creative memoir inspired by real events, told with love and a little imagination.</p>
   <button class="start-btn" onclick="startStory()">Tap to begin</button>
+  <a href="https://write.chatbookpt.com" target="_blank" rel="noopener" class="write-banner">
+    ✏️ Turn handwriting into stories
+    <span class="banner-arrow">→</span>
+  </a>
 </div>
 
 <div class="header">
