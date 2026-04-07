@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>No handwritten text was found in this image. | ChatBookPT</title>
+<script defer data-domain="chatbookpt.com" src="https://plausible.io/js/script.js"></script>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #faf7f2;
+    --chat-bg: #fff;
+    --snow-bubble: #fff8f0;
+    --snow-border: #f0e0cc;
+    --user-bubble: #e8ddd0;
+    --accent: #c9956b;
+    --accent-hover: #b07d55;
+    --text: #4a3728;
+    --text-light: #8a7565;
+    --shadow: rgba(120, 80, 40, 0.08);
+  }
+
+  body {
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100dvh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .header {
+    text-align: center;
+    padding: 24px 16px 12px;
+    max-width: 600px;
+    width: 100%;
+    position: relative;
+  }
+  .header .avatar {
+    width: 72px; height: 72px;
+    border-radius: 50%;
+    background: var(--snow-bubble);
+    border: 3px solid var(--snow-border);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 36px;
+    margin: 0 auto 8px;
+  }
+  .header h1 { font-size: 1.25rem; font-weight: 600; color: var(--text); }
+  .header p { font-size: 0.8rem; color: var(--text-light); margin-top: 2px; }
+
+  .mute-btn {
+    position: absolute;
+    top: 24px;
+    right: 16px;
+    background: var(--snow-bubble);
+    border: 1px solid var(--snow-border);
+    border-radius: 50%;
+    width: 38px; height: 38px;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer;
+    font-size: 18px;
+    transition: background 0.2s, transform 0.15s;
+    box-shadow: 0 1px 3px var(--shadow);
+  }
+  .mute-btn:hover { background: var(--user-bubble); transform: scale(1.08); }
+  .mute-btn:active { transform: scale(0.95); }
+
+  .chat-wrap {
+    flex: 1;
+    width: 100%;
+    max-width: 600px;
+    display: flex;
+    flex-direction: column;
+    padding: 0 12px 12px;
+  }
+  .messages {
+    flex: 1;
+    overflow-y: auto;
+    padding: 8px 0 16px;
+    scroll-behavior: smooth;
+  }
+
+  .msg {
+    display: flex;
+    margin-bottom: 12px;
+    opacity: 0;
+    transform: translateY(10px);
+    animation: fadeUp 0.35s ease forwards;
+  }
+  @keyframes fadeUp { to { opacity: 1; transform: translateY(0); } }
+
+  .msg.snow { justify-content: flex-start; }
+  .msg.user { justify-content: flex-end; }
+
+  .bubble {
+    max-width: 82%;
+    padding: 12px 16px;
+    border-radius: 18px;
+    line-height: 1.55;
+    font-size: 0.95rem;
+    position: relative;
+    box-shadow: 0 1px 3px var(--shadow);
+  }
+  .msg.snow .bubble {
+    background: var(--snow-bubble);
+    border: 1px solid var(--snow-border);
+    border-bottom-left-radius: 4px;
+  }
+  .msg.user .bubble {
+    background: var(--user-bubble);
+    border-bottom-right-radius: 4px;
+    color: var(--text);
+  }
+
+  .typing-indicator {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 0;
+    margin-bottom: 8px;
+    opacity: 0;
+    animation: fadeUp 0.3s ease forwards;
+  }
+  .typing-indicator .label { font-size: 0.8rem; color: var(--text-light); font-style: italic; }
+  .dots { display: flex; gap: 4px; }
+  .dots span {
+    width: 6px; height: 6px;
+    background: var(--accent);
+    border-radius: 50%;
+    animation: bounce 1.2s infinite;
+  }
+  .dots span:nth-child(2) { animation-delay: 0.15s; }
+  .dots span:nth-child(3) { animation-delay: 0.3s; }
+  @keyframes bounce {
+    0%, 60%, 100% { transform: translateY(0); opacity: 0.4; }
+    30% { transform: translateY(-6px); opacity: 1; }
+  }
+
+  .choices {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 4px 0 12px;
+    justify-content: flex-end;
+    opacity: 0;
+    animation: fadeUp 0.35s ease forwards;
+  }
+  .choices button {
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    padding: 10px 18px;
+    border-radius: 20px;
+    font-size: 0.88rem;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.15s;
+    line-height: 1.3;
+  }
+  .choices button:hover { background: var(--accent-hover); transform: scale(1.04); }
+  .choices button:active { transform: scale(0.97); }
+
+  .messages::-webkit-scrollbar { width: 5px; }
+  .messages::-webkit-scrollbar-thumb { background: var(--snow-border); border-radius: 4px; }
+
+  .splash {
+    position: fixed;
+    inset: 0;
+    background: var(--bg);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 200;
+    text-align: center;
+    padding: 24px;
+    transition: opacity 0.4s ease;
+  }
+  .splash-avatar { font-size: 72px; margin-bottom: 16px; }
+  .splash h2 { font-size: 1.5rem; font-weight: 700; margin-bottom: 8px; }
+  .splash p { font-size: 0.9rem; color: var(--text-light); margin-bottom: 32px; line-height: 1.6; }
+  .start-btn {
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    padding: 14px 40px;
+    border-radius: 30px;
+    font-size: 1rem;
+    font-family: inherit;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.15s;
+    box-shadow: 0 4px 20px rgba(201, 149, 107, 0.4);
+  }
+  .start-btn:hover { background: var(--accent-hover); transform: scale(1.04); }
+  .start-btn:active { transform: scale(0.97); }
+
+  .write-banner {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 28px;
+    padding: 10px 18px;
+    background: var(--snow-bubble);
+    border: 1px solid var(--snow-border);
+    border-radius: 12px;
+    text-decoration: none;
+    color: var(--text-light);
+    font-size: 0.8rem;
+    transition: background 0.2s, color 0.2s, transform 0.15s;
+  }
+  .write-banner:hover { background: var(--user-bubble); color: var(--text); transform: scale(1.03); }
+  .write-banner .banner-arrow { font-size: 0.75rem; opacity: 0.6; }
+
+  @media (max-width: 480px) {
+    .header { padding: 16px 12px 8px; }
+    .header .avatar { width: 56px; height: 56px; font-size: 28px; }
+    .header h1 { font-size: 1.1rem; }
+    .bubble { max-width: 88%; font-size: 0.9rem; padding: 10px 14px; }
+    .choices button { padding: 9px 14px; font-size: 0.82rem; }
+  }
+</style>
+</head>
+<body>
+
+<div class="splash" id="splash">
+  <div class="splash-avatar">📖</div>
+  <h2>No handwritten text was found in this image.</h2>
+  <p>An interactive story</p>
+  <button class="start-btn" onclick="startStory()">Tap to begin</button>
+  <a href="https://write.chatbookpt.com" target="_blank" rel="noopener" class="write-banner">
+    ✏️ Turn handwriting into stories
+    <span class="banner-arrow">→</span>
+  </a>
+</div>
+
+<div class="header">
+  <div class="avatar">📖</div>
+  <h1>No handwritten text was found in this image.</h1>
+  <p>An interactive story</p>
+  <button class="mute-btn" id="muteBtn" title="Toggle audio">🔊</button>
+</div>
+
+<div class="chat-wrap">
+  <div class="messages" id="messages"></div>
+</div>
+
+<script>
+const tree = {
+  "no_content": {
+    "messages": [
+      "No handwritten text was found in this image.",
+      "Please check the image and try again."
+    ],
+    "choices": [
+      {
+        "text": "Try again",
+        "next": "no_content"
+      }
+    ]
+  }
+};
+
+let audioCtx = null;
+let audioMuted = localStorage.getItem('chatbook-muted') === 'true';
+let musicGain = null;
+let musicStarted = false;
+
+const muteBtn = document.getElementById('muteBtn');
+muteBtn.textContent = audioMuted ? '🔇' : '🔊';
+
+muteBtn.addEventListener('click', () => {
+  audioMuted = !audioMuted;
+  localStorage.setItem('chatbook-muted', audioMuted);
+  muteBtn.textContent = audioMuted ? '🔇' : '🔊';
+  if (audioMuted) window.speechSynthesis.cancel();
+  if (musicGain) musicGain.gain.setTargetAtTime(audioMuted ? 0 : 0.08, audioCtx.currentTime, 0.3);
+});
+
+function ensureAudioCtx() {
+  if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  if (audioCtx.state === 'suspended') audioCtx.resume();
+}
+
+function playMessageSound() {
+  if (audioMuted) return;
+  ensureAudioCtx();
+  const osc = audioCtx.createOscillator();
+  const gain = audioCtx.createGain();
+  osc.type = 'sine';
+  osc.frequency.setValueAtTime(660, audioCtx.currentTime);
+  osc.frequency.exponentialRampToValueAtTime(440, audioCtx.currentTime + 0.15);
+  gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
+  gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.2);
+  osc.connect(gain);
+  gain.connect(audioCtx.destination);
+  osc.start(audioCtx.currentTime);
+  osc.stop(audioCtx.currentTime + 0.2);
+}
+
+function playClickSound() {
+  if (audioMuted) return;
+  ensureAudioCtx();
+  const osc = audioCtx.createOscillator();
+  const gain = audioCtx.createGain();
+  osc.type = 'sine';
+  osc.frequency.setValueAtTime(800, audioCtx.currentTime);
+  osc.frequency.exponentialRampToValueAtTime(600, audioCtx.currentTime + 0.08);
+  gain.gain.setValueAtTime(0.12, audioCtx.currentTime);
+  gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.1);
+  osc.connect(gain);
+  gain.connect(audioCtx.destination);
+  osc.start(audioCtx.currentTime);
+  osc.stop(audioCtx.currentTime + 0.1);
+}
+
+function stripEmojisAndActions(text) {
+  let cleaned = text.replace(/[\u{1F600}-\u{1F64F}\u{1F300}-\u{1F5FF}\u{1F680}-\u{1F6FF}\u{1F1E0}-\u{1F1FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}\u{1F900}-\u{1F9FF}\u{1FA00}-\u{1FA6F}\u{1FA70}-\u{1FAFF}\u{2702}-\u{27B0}\u{FE00}-\u{FE0F}\u{200D}\u{20E3}\u{E0020}-\u{E007F}]/gu, '');
+  cleaned = cleaned.replace(/\*[^*]+\*/g, '');
+  return cleaned.trim();
+}
+
+let preferredVoice = null;
+function loadVoice() {
+  const voices = window.speechSynthesis.getVoices();
+  preferredVoice = voices.find(v => v.name === 'Samantha')
+    || voices.find(v => v.lang.startsWith('en') && /female|samantha|karen|victoria|moira|fiona/i.test(v.name))
+    || voices.find(v => v.lang.startsWith('en'))
+    || voices[0]
+    || null;
+}
+if (window.speechSynthesis) {
+  loadVoice();
+  window.speechSynthesis.onvoiceschanged = loadVoice;
+}
+
+function speakText(text) {
+  return new Promise((resolve) => {
+    if (audioMuted || !window.speechSynthesis) { resolve(); return; }
+    const cleaned = stripEmojisAndActions(text);
+    if (!cleaned) { resolve(); return; }
+    const utterance = new SpeechSynthesisUtterance(cleaned);
+    if (preferredVoice) utterance.voice = preferredVoice;
+    utterance.rate = 0.9;
+    utterance.pitch = 1.1;
+    utterance.volume = 1.0;
+    const timeout = setTimeout(resolve, Math.max(4000, cleaned.length * 65));
+    const done = () => { clearTimeout(timeout); resolve(); };
+    utterance.onend = done;
+    utterance.onerror = done;
+    window.speechSynthesis.speak(utterance);
+  });
+}
+
+function cancelSpeech() {
+  if (window.speechSynthesis) window.speechSynthesis.cancel();
+}
+
+function startBackgroundMusic() {
+  if (musicStarted) return;
+  musicStarted = true;
+  ensureAudioCtx();
+  musicGain = audioCtx.createGain();
+  musicGain.gain.setValueAtTime(audioMuted ? 0 : 0.08, audioCtx.currentTime);
+  musicGain.connect(audioCtx.destination);
+  const chords = [
+    [261.63, 329.63, 392.00],
+    [220.00, 261.63, 329.63],
+    [174.61, 220.00, 261.63],
+    [196.00, 246.94, 293.66],
+  ];
+  let chordIndex = 0;
+  const noteDuration = 0.8;
+  const noteGap = 0.15;
+  const arpeggioDelay = 0.3;
+  function playChord() {
+    if (!audioCtx || audioCtx.state === 'closed') return;
+    const chord = chords[chordIndex % chords.length];
+    chordIndex++;
+    chord.forEach((freq, i) => {
+      const startTime = audioCtx.currentTime + i * arpeggioDelay;
+      const osc = audioCtx.createOscillator();
+      const noteGain = audioCtx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(freq, startTime);
+      noteGain.gain.setValueAtTime(0, startTime);
+      noteGain.gain.linearRampToValueAtTime(0.3, startTime + 0.05);
+      noteGain.gain.exponentialRampToValueAtTime(0.001, startTime + noteDuration);
+      osc.connect(noteGain);
+      noteGain.connect(musicGain);
+      osc.start(startTime);
+      osc.stop(startTime + noteDuration + 0.05);
+    });
+    const chordDuration = (chord.length - 1) * arpeggioDelay + noteDuration + noteGap;
+    setTimeout(playChord, chordDuration * 1000);
+  }
+  playChord();
+}
+
+const messagesEl = document.getElementById('messages');
+let busy = false;
+
+function scrollToBottom() { messagesEl.scrollTop = messagesEl.scrollHeight; }
+
+function addElement(html) {
+  const div = document.createElement('div');
+  div.innerHTML = html;
+  const el = div.firstElementChild;
+  messagesEl.appendChild(el);
+  scrollToBottom();
+  return el;
+}
+
+function showTyping() {
+  return addElement(`
+    <div class="typing-indicator" id="typing">
+      <div class="dots"><span></span><span></span><span></span></div>
+      <span class="label">Narrator is typing...</span>
+    </div>
+  `);
+}
+
+function removeTyping() {
+  const el = document.getElementById('typing');
+  if (el) el.remove();
+}
+
+function addSnowMessage(text) {
+  addElement(`<div class="msg snow"><div class="bubble">${text}</div></div>`);
+}
+
+function addUserMessage(text) {
+  addElement(`<div class="msg user"><div class="bubble">${text}</div></div>`);
+}
+
+function showChoices(choices) {
+  const btns = choices.map(c =>
+    `<button onclick="handleChoice('${c.next}', this)">${c.text}</button>`
+  ).join('');
+  addElement(`<div class="choices">${btns}</div>`);
+}
+
+async function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+async function playNode(nodeId) {
+  if (busy) return;
+  busy = true;
+  const node = tree[nodeId];
+  if (!node) { busy = false; return; }
+  for (const msg of node.messages) {
+    showTyping();
+    const delay = Math.min(600 + msg.length * 12, 2200);
+    await sleep(delay);
+    removeTyping();
+    addSnowMessage(msg);
+    playMessageSound();
+    await speakText(msg);
+    await sleep(200);
+  }
+  if (node.choices && node.choices.length) {
+    await sleep(350);
+    showChoices(node.choices);
+  }
+  busy = false;
+}
+
+function handleChoice(nextId, btn) {
+  if (busy) return;
+  cancelSpeech();
+  playClickSound();
+  if (!musicStarted) startBackgroundMusic();
+  const text = btn.textContent;
+  const choicesEl = btn.parentElement;
+  if (choicesEl) choicesEl.remove();
+  addUserMessage(text);
+  playNode(nextId);
+}
+
+function startStory() {
+  const splash = document.getElementById('splash');
+  splash.style.opacity = '0';
+  setTimeout(() => splash.remove(), 400);
+  ensureAudioCtx();
+  startBackgroundMusic();
+  playNode('no_content');
+}
+</script>
+</body>
+</html>
