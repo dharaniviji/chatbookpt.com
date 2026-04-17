@@ -229,7 +229,7 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding: 0 24px 60px;
+    padding: 0 48px 80px;
     z-index: 200;
     transition: opacity 0.4s ease;
   }
@@ -247,44 +247,44 @@
 
   .topbar {
     width: 100%;
-    max-width: 420px;
+    max-width: 860px;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 20px 0 0;
+    padding: 28px 0 0;
     opacity: 0;
     animation: fadeUp 0.6s ease forwards;
   }
 
   .topbar-brand {
     font-family: 'Playfair Display', serif;
-    font-size: 13px;
+    font-size: 15px;
     letter-spacing: 0.12em;
     color: var(--bark-light);
     text-transform: uppercase;
   }
 
   .topbar-beta {
-    font-size: 10px;
+    font-size: 11px;
     letter-spacing: 0.15em;
     text-transform: uppercase;
     color: var(--sand);
     border: 1px solid var(--sand-light);
-    padding: 3px 8px;
+    padding: 4px 12px;
     border-radius: 20px;
   }
 
   .hero {
-    margin-top: 48px;
+    margin-top: 72px;
     text-align: center;
     opacity: 0;
     animation: fadeUp 0.7s ease 0.15s forwards;
   }
 
   .paws {
-    font-size: 40px;
+    font-size: 56px;
     display: block;
-    margin-bottom: 24px;
+    margin-bottom: 28px;
     animation: breathe 4s ease-in-out infinite;
     transform-origin: center;
   }
@@ -296,76 +296,76 @@
 
   .story-title {
     font-family: 'Playfair Display', serif;
-    font-size: 42px;
+    font-size: 72px;
     font-weight: 600;
     color: var(--bark);
-    letter-spacing: -0.01em;
-    line-height: 1.1;
-    margin-bottom: 12px;
+    letter-spacing: -0.02em;
+    line-height: 1.05;
+    margin-bottom: 16px;
   }
 
   .story-subtitle {
-    font-size: 14px;
+    font-size: 17px;
     color: var(--ink-soft);
-    letter-spacing: 0.04em;
+    letter-spacing: 0.03em;
     line-height: 1.6;
-    margin-bottom: 6px;
+    margin-bottom: 8px;
   }
 
   .story-note {
     font-style: italic;
-    font-size: 13px;
+    font-size: 15px;
     color: var(--bark-light);
     opacity: 0.8;
   }
 
   .splash-divider {
-    width: 40px;
+    width: 48px;
     height: 1px;
     background: var(--sand);
-    margin: 28px auto;
+    margin: 36px auto;
     opacity: 0;
     animation: fadeUp 0.6s ease 0.3s forwards;
   }
 
   .mission {
     text-align: center;
-    max-width: 320px;
+    max-width: 580px;
     opacity: 0;
     animation: fadeUp 0.7s ease 0.4s forwards;
   }
 
   .mission-headline {
     font-family: 'Playfair Display', serif;
-    font-size: 22px;
+    font-size: 30px;
     font-weight: 400;
     font-style: italic;
     color: var(--bark);
     line-height: 1.4;
-    margin-bottom: 10px;
+    margin-bottom: 14px;
   }
 
   .mission-sub {
-    font-size: 12.5px;
+    font-size: 15px;
     color: var(--ink-soft);
     line-height: 1.7;
     letter-spacing: 0.02em;
   }
 
   .founding-note {
-    margin-top: 20px;
+    margin-top: 24px;
     background: var(--warm-white);
     border: 1px solid var(--sand-light);
-    border-radius: 12px;
-    padding: 14px 20px;
-    max-width: 320px;
+    border-radius: 14px;
+    padding: 18px 32px;
+    max-width: 480px;
     text-align: center;
     opacity: 0;
     animation: fadeUp 0.7s ease 0.5s forwards;
   }
 
   .founding-note p {
-    font-size: 12px;
+    font-size: 13px;
     color: var(--ink-soft);
     line-height: 1.65;
     font-style: italic;
@@ -373,21 +373,21 @@
 
   .founding-dot {
     display: inline-block;
-    width: 6px;
-    height: 6px;
+    width: 7px;
+    height: 7px;
     background: var(--moss);
     border-radius: 50%;
-    margin-right: 6px;
+    margin-right: 8px;
     vertical-align: middle;
   }
 
   .cta-group {
-    margin-top: 36px;
+    margin-top: 44px;
     width: 100%;
-    max-width: 340px;
+    max-width: 460px;
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    gap: 14px;
     opacity: 0;
     animation: fadeUp 0.7s ease 0.6s forwards;
   }
@@ -397,9 +397,9 @@
     color: var(--cream);
     border: none;
     border-radius: 50px;
-    padding: 18px 32px;
+    padding: 20px 48px;
     font-family: 'Lora', serif;
-    font-size: 16px;
+    font-size: 18px;
     letter-spacing: 0.02em;
     cursor: pointer;
     transition: all 0.25s ease;
@@ -407,8 +407,8 @@
 
   .btn-primary:hover {
     background: var(--bark-light);
-    transform: translateY(-1px);
-    box-shadow: 0 8px 24px rgba(92,61,46,0.2);
+    transform: translateY(-2px);
+    box-shadow: 0 10px 28px rgba(92,61,46,0.2);
   }
 
   .btn-primary:active { transform: translateY(0); }
@@ -418,38 +418,38 @@
     color: var(--bark);
     border: 1.5px solid var(--sand-light);
     border-radius: 50px;
-    padding: 15px 32px;
+    padding: 17px 40px;
     font-family: 'Lora', serif;
-    font-size: 14px;
+    font-size: 15px;
     letter-spacing: 0.02em;
     cursor: pointer;
     transition: all 0.25s ease;
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 8px;
+    gap: 10px;
     text-decoration: none;
   }
 
   .btn-secondary:hover {
     border-color: var(--sand);
     background: var(--sand-light);
-    transform: translateY(-1px);
+    transform: translateY(-2px);
   }
 
   .btn-arrow {
-    font-size: 16px;
+    font-size: 17px;
     transition: transform 0.2s ease;
   }
 
   .btn-secondary:hover .btn-arrow {
-    transform: translateX(3px);
+    transform: translateX(4px);
   }
 
   .splash-stats {
-    margin-top: 44px;
+    margin-top: 56px;
     display: flex;
-    gap: 32px;
+    gap: 48px;
     justify-content: center;
     opacity: 0;
     animation: fadeUp 0.7s ease 0.75s forwards;
@@ -459,18 +459,18 @@
 
   .splash-stat-num {
     font-family: 'Playfair Display', serif;
-    font-size: 22px;
+    font-size: 28px;
     color: var(--bark);
     display: block;
     font-weight: 600;
   }
 
   .splash-stat-label {
-    font-size: 10px;
+    font-size: 11px;
     letter-spacing: 0.1em;
     text-transform: uppercase;
     color: var(--ink-soft);
-    margin-top: 2px;
+    margin-top: 4px;
     display: block;
   }
 
@@ -481,17 +481,17 @@
   }
 
   .splash-footer {
-    margin-top: 48px;
+    margin-top: 60px;
     text-align: center;
     opacity: 0;
     animation: fadeUp 0.6s ease 0.9s forwards;
   }
 
   .splash-footer p {
-    font-size: 11px;
+    font-size: 13px;
     color: var(--bark-light);
     opacity: 0.6;
-    letter-spacing: 0.05em;
+    letter-spacing: 0.04em;
     line-height: 1.8;
   }
 
@@ -505,16 +505,34 @@
     position: fixed;
     bottom: 0;
     right: 0;
-    width: 180px;
-    height: 180px;
+    width: 280px;
+    height: 280px;
     opacity: 0.06;
     pointer-events: none;
     z-index: 201;
   }
 
-  @media (max-width: 390px) {
-    .story-title { font-size: 36px; }
-    .mission-headline { font-size: 20px; }
+  /* Mobile */
+  @media (max-width: 600px) {
+    .page { padding: 0 24px 60px; }
+    .topbar { max-width: 100%; padding: 20px 0 0; }
+    .topbar-brand { font-size: 13px; }
+    .topbar-beta { font-size: 10px; padding: 3px 8px; }
+    .hero { margin-top: 48px; }
+    .paws { font-size: 40px; margin-bottom: 20px; }
+    .story-title { font-size: 44px; }
+    .story-subtitle { font-size: 14px; }
+    .story-note { font-size: 13px; }
+    .mission { max-width: 100%; }
+    .mission-headline { font-size: 22px; }
+    .mission-sub { font-size: 13px; }
+    .founding-note { max-width: 100%; padding: 14px 20px; }
+    .cta-group { max-width: 100%; }
+    .btn-primary { font-size: 16px; padding: 18px 32px; }
+    .btn-secondary { font-size: 14px; padding: 15px 28px; }
+    .splash-stats { gap: 28px; margin-top: 40px; }
+    .splash-stat-num { font-size: 22px; }
+    .flourish { width: 160px; height: 160px; }
   }
 
   /* ---- Responsive ---- */
