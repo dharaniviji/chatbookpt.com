@@ -46,6 +46,19 @@
   <h1>📚 All Stories</h1>
   <p class="subtitle">Interactive stories created from handwritten pages</p>
 
+  <!-- Private stories -->
+  <div class="section-label">Private stories</div>
+  <div class="private-box">
+    <p class="private-desc">Have an invite code? Enter it below to view your family's private story collection.</p>
+    <form method="POST" action="https://write.chatbookpt.com/auth-and-redirect">
+      <div class="code-row">
+        <input class="code-input" type="text" name="code" placeholder="Enter invite code" autocomplete="off" spellcheck="false">
+        <button class="code-btn" type="submit">View →</button>
+      </div>
+      <p class="error-msg" id="err">Invalid code — please try again.</p>
+    </form>
+  </div>
+
   <!-- Public stories -->
   <div class="section-label">Public stories</div>
   <div id="public-stories">
@@ -98,19 +111,6 @@
       </div>
       <span class="story-arrow">→</span>
     </a>
-  </div>
-
-  <!-- Private stories -->
-  <div class="section-label">Private stories</div>
-  <div class="private-box">
-    <p class="private-desc">Have an invite code? Enter it below to view your family's private story collection.</p>
-    <form method="POST" action="https://write.chatbookpt.com/auth-and-redirect">
-      <div class="code-row">
-        <input class="code-input" type="text" name="code" placeholder="Enter invite code" autocomplete="off" spellcheck="false">
-        <button class="code-btn" type="submit">View →</button>
-      </div>
-      <p class="error-msg" id="err">Invalid code — please try again.</p>
-    </form>
   </div>
 </div>
 <script>
