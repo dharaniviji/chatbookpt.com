@@ -21,11 +21,23 @@
   .back-link:hover { color: var(--accent); }
   h1 { font-size: 1.6rem; font-weight: 700; margin-bottom: 0.4rem; }
   .subtitle { font-size: 0.9rem; color: var(--text-light); margin-bottom: 2rem; }
+  .section-label { font-size: 0.75rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-light); margin-bottom: 0.75rem; margin-top: 2rem; padding-bottom: 0.4rem; border-bottom: 1px solid var(--snow-border); }
   .story-card { display: flex; align-items: center; justify-content: space-between; padding: 1rem 1.25rem; background: var(--snow-bubble); border: 1px solid var(--snow-border); border-radius: 12px; text-decoration: none; color: var(--text); margin-bottom: 0.75rem; transition: background 0.2s, transform 0.15s; box-shadow: 0 1px 3px var(--shadow); }
   .story-card:hover { background: var(--user-bubble); transform: translateY(-1px); }
   .story-title { font-size: 0.95rem; font-weight: 600; }
   .story-date { font-size: 0.8rem; color: var(--text-light); margin-top: 2px; }
   .story-arrow { font-size: 1rem; color: var(--accent); }
+
+  /* Private section */
+  .private-box { background: var(--snow-bubble); border: 1px solid var(--snow-border); border-radius: 12px; padding: 1.25rem; margin-top: 0.5rem; }
+  .private-desc { font-size: 0.85rem; color: var(--text-light); margin-bottom: 1rem; }
+  .code-row { display: flex; gap: 0.5rem; }
+  .code-input { flex: 1; padding: 0.6rem 0.9rem; border: 1px solid var(--snow-border); border-radius: 8px; background: #fff; color: var(--text); font-size: 0.9rem; outline: none; }
+  .code-input:focus { border-color: var(--accent); }
+  .code-btn { padding: 0.6rem 1.1rem; background: var(--accent); color: #fff; border: none; border-radius: 8px; font-size: 0.9rem; font-weight: 600; cursor: pointer; transition: background 0.2s; }
+  .code-btn:hover { background: var(--accent-hover); }
+  .error-msg { font-size: 0.82rem; color: #c0392b; margin-top: 0.6rem; display: none; }
+  .error-msg.visible { display: block; }
 </style>
 </head>
 <body>
@@ -33,57 +45,79 @@
   <a href="/" class="back-link">← ChatBookPT</a>
   <h1>📚 All Stories</h1>
   <p class="subtitle">Interactive stories created from handwritten pages</p>
-  <div id="stories">
+
+  <!-- Public stories -->
+  <div class="section-label">Public stories</div>
+  <div id="public-stories">
     <a href="/stories/welcome-to-the-regular-rockers-announcem-m2gd/" class="story-card">
-    <div>
-      <div class="story-title">Welcome to the Regular Rockers announcement for CI-Lakshy</div>
-      <div class="story-date">Apr 16, 2026</div>
-    </div>
-    <span class="story-arrow">→</span>
-  </a>
+      <div>
+        <div class="story-title">Welcome to the Regular Rockers announcement for CI-Lakshy</div>
+        <div class="story-date">Apr 16, 2026</div>
+      </div>
+      <span class="story-arrow">→</span>
+    </a>
     <a href="/stories/in-an-old-dusty-attic-2s39/" class="story-card">
-    <div>
-      <div class="story-title">In an old dusty attic...</div>
-      <div class="story-date">Apr 16, 2026</div>
-    </div>
-    <span class="story-arrow">→</span>
-  </a>
+      <div>
+        <div class="story-title">In an old dusty attic...</div>
+        <div class="story-date">Apr 16, 2026</div>
+      </div>
+      <span class="story-arrow">→</span>
+    </a>
     <a href="/stories/synonyms-ikwo/" class="story-card">
-    <div>
-      <div class="story-title">पर्यायवाची शब्द (Synonyms)</div>
-      <div class="story-date">Apr 15, 2026</div>
-    </div>
-    <span class="story-arrow">→</span>
-  </a>
+      <div>
+        <div class="story-title">पर्यायवाची शब्द (Synonyms)</div>
+        <div class="story-date">Apr 15, 2026</div>
+      </div>
+      <span class="story-arrow">→</span>
+    </a>
     <a href="/stories/there-was-a-puppy-her-name-was-valentine-w7w1/" class="story-card">
-    <div>
-      <div class="story-title">There was a puppy. Her name was Valentine.</div>
-      <div class="story-date">Apr 15, 2026</div>
-    </div>
-    <span class="story-arrow">→</span>
-  </a>
+      <div>
+        <div class="story-title">There was a puppy. Her name was Valentine.</div>
+        <div class="story-date">Apr 15, 2026</div>
+      </div>
+      <span class="story-arrow">→</span>
+    </a>
     <a href="/stories/there-was-a-puppy-her-name-was-valentine-n7el/" class="story-card">
-    <div>
-      <div class="story-title">There was a puppy, her name was Valentine</div>
-      <div class="story-date">Apr 9, 2026</div>
-    </div>
-    <span class="story-arrow">→</span>
-  </a>
+      <div>
+        <div class="story-title">There was a puppy, her name was Valentine</div>
+        <div class="story-date">Apr 9, 2026</div>
+      </div>
+      <span class="story-arrow">→</span>
+    </a>
     <a href="/stories/-i5ru/" class="story-card">
-    <div>
-      <div class="story-title">My Story</div>
-      <div class="story-date">Apr 7, 2026</div>
-    </div>
-    <span class="story-arrow">→</span>
-  </a>
+      <div>
+        <div class="story-title">My Story</div>
+        <div class="story-date">Apr 7, 2026</div>
+      </div>
+      <span class="story-arrow">→</span>
+    </a>
     <a href="/stories/my-story-f835/" class="story-card">
-    <div>
-      <div class="story-title">My Story</div>
-      <div class="story-date">Apr 7, 2026</div>
-    </div>
-    <span class="story-arrow">→</span>
-  </a>
+      <div>
+        <div class="story-title">My Story</div>
+        <div class="story-date">Apr 7, 2026</div>
+      </div>
+      <span class="story-arrow">→</span>
+    </a>
+  </div>
+
+  <!-- Private stories -->
+  <div class="section-label">Private stories</div>
+  <div class="private-box">
+    <p class="private-desc">Have an invite code? Enter it below to view your family's private story collection.</p>
+    <form method="POST" action="https://write.chatbookpt.com/auth-and-redirect">
+      <div class="code-row">
+        <input class="code-input" type="text" name="code" placeholder="Enter invite code" autocomplete="off" spellcheck="false">
+        <button class="code-btn" type="submit">View →</button>
+      </div>
+      <p class="error-msg" id="err">Invalid code — please try again.</p>
+    </form>
   </div>
 </div>
+<script>
+  const params = new URLSearchParams(location.search);
+  if (params.get('error') === 'invalid') {
+    document.getElementById('err').classList.add('visible');
+  }
+</script>
 </body>
 </html>
